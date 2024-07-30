@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Socket.IO Queue</title>
+</head>
+<body>
+  <h1>Socket.IO Queue</h1>
+  <input id="message" type="text" placeholder="Enter message">
+  <button onclick="enqueue()">Enqueue</button>
+  <button onclick="dequeue()">Dequeue</button>
+  <h2>Queue</h2>
+  <ul id="queue"></ul>
+  <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+  <script>
+    const socket = io('http://localhost:3000');
+
+    function enqueue() {
+      const message = document.getElementById('message').value;
+      socket.emit('enqueue', message);
+      document.getElementById('message').value = '';
+    }
+
+    function dequeue() {
+      socket.emit('dequeue');
+    }
+
+    socket.on('queue', (queue) => {
+      const queueList = document.getElementById('queue');
+      queueList.innerHTML = '';
+      queue.forEach(msg => {
+        const li = document.createElement('li');
+        li.textContent = msg;
+        queueList.appendChild(li);
+      });
+    });
+
+    socket.on('dequeued', (message) => {
+      alert('Dequeued message: ' + message);
+    });
+
+    socket.on('error', (errorMessage) => {
+      alert(errorMessage);
+    });
+  </script>
+</body>
+</html>
